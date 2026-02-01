@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2E7D32">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Lawn Service">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%232E7D32' width='100' height='100'/><text y='75' font-size='70' fill='white' text-anchor='middle' x='50'>🌱</text></svg>">
+    <title>Lawn & Snow Service Manager</title>
+    <style>
+        :root {
+            --color-primary: #2E7D32;
+            --color-primary-hover: #1B5E20;
+            --color-winter: #1976D2;
+            --color-winter-hover: #0D47A1;
+            --color-background: #FCFCF9;
+            --color-surface: #FFFFFF;
+            --color-text: #1F2121;
+            --color-text-secondary: #626C71;
+            --color-border: rgba(94, 82, 64, 0.2);
+            --color-success: #2E7D32;
+            --color-warning: #E68161;
+            --color-danger: #C0152F;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-background: #1F2121;
+                --color-surface: #262828;
+                --color-text: #F5F5F5;
+                --color-text-secondary: #A7A9A9;
+                --color-border: rgba(119, 124, 124, 0.3);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-background);
+            color: var(--color-text);
+            padding-bottom: 80px;
+        }
+
+        .header {
+            background: var(--color-primary);
+            color: white;
+            padding: 16px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .header-subtitle {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .tab-bar {
+            display: flex;
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            overflow-x: auto;
+            position: sticky;
+            top: 76px;
+            z-index: 99;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 14px 12px;
+            background: none;
+            border: none;
+            color: var(--color-text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .content {
+            padding: 16px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-top: 4px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .btn-secondary {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        .btn-icon {
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            color: white;
+            font-size: 24px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(34, 160, 107, 0.4);
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 90;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--color-surface);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            margin: 20px auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            background: none;
+            border: none;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--color-text);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--color-surface);
+            color: var(--color-text);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .service-item:last-child {
+            border-bottom: none;
+        }
+
+        .service-name {
+            font-weight: 500;
+        }
+
+        .service-price {
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        .info-row {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            color: var(--color-text-secondary);
+            min-width: 80px;
+        }
+
+        .info-value {
+            color: var(--color-text);
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .photo-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--color-border);
+            cursor: pointer;
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-upload {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: var(--color-text-secondary);
+            border: 2px dashed var(--color-border);
+        }
+
+        .route-card {
+            margin-bottom: 12px;
+        }
+
+        .route-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .route-stops {
+            padding: 12px;
+            background: var(--color-background);
+            border: 1px solid var(--color-border);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .stop-item {
+            padding: 8px;
+            margin-bottom: 6px;
+            background: var(--color-surface);
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stop-number {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            color: white;
+            text-align: center;
+            line-height: 24px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px;
+            color: var(--color-text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .nav-item.active {
+            color: var(--color-primary);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--color-text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: rgba(34, 160, 107, 0.15);
+            color: var(--color-success);
+        }
+
+        .file-input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌱 Lawn & Snow Service Manager</h1>
+        <div class="header-subtitle">Professional Service Tracking</div>
+    </div>
+
+    <div class="tab-bar">
+        <button class="tab-btn active" data-tab="customers">Customers</button>
+        <button class="tab-btn" data-tab="routes">Routes</button>
+        <button class="tab-btn" data-tab="services">Services</button>
+    </div>
+
+    <div class="content">
+        <!-- Customers Tab -->
+        <div id="customers" class="tab-content active">
+            <div id="customerList"></div>
+        </div>
+
+        <!-- Routes Tab -->
+        <div id="routes" class="tab-content">
+            <div id="routeList"></div>
+        </div>
+
+        <!-- Services Tab -->
+        <div id="services" class="tab-content">
+            <div class="card">
+                <h3 style="margin-bottom: 16px;">Lawn Care Services</h3>
+                <div class="service-item">
+                    <span class="service-name">Regular Mowing</span>
+                    <span class="service-price">$35-$100</span>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Spring Cleanup</span>
+                    <span class="service-price">$150-$450</span>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Fall Cleanup</span>
+                    <span class="service-price">$150-$450</span>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Dethatching</span>
+                    <span class="service-price">$145-$250</span>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Aeration</span>
+                    <span class="service-price">$75-$250</span>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Fertilization</span>
+                    <span class="service-price">$65-$405</span>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Weed Spraying</span>
+                    <span class="service-price">$50-$210</span>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Trimming/Edging</span>
+                    <span class="service-price">$40-$120</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 16px;">Snow Removal Services</h3>
+                <div class="service-item">
+                    <span class="service-name">Plowing (2" trigger)</span>
+                    <span class="service-price">$50-$150</span>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Sidewalk Shoveling (1" trigger)</span>
+                    <span class="service-price">$30-$80</span>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Salt/Ice Melt Application</span>
+                    <span class="service-price">$40-$100</span>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Snow Hauling</span>
+                    <span class="service-price">$150-$400</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 12px;">Industry Standards</h3>
+                <p style="font-size: 14px; line-height: 1.6; color: var(--color-text-secondary);">
+                    <strong>Snow Triggers:</strong><br>
+                    • Plowing: 2" standard depth<br>
+                    • Sidewalks: 1" standard depth<br>
+                    • High-traffic: 0.5-1" for safety<br><br>
+                    <strong>Grass Height:</strong><br>
+                    • Maintain 2.5-3.5" height<br>
+                    • Never cut more than 1/3 of blade<br>
+                    • Adjust seasonally
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" onclick="openCustomerModal()">+</button>
+
+    <!-- Customer Modal -->
+    <div id="customerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Customer</h2>
+                <button class="close-btn" onclick="closeModal('customerModal')">&times;</button>
+            </div>
+            <form id="customerForm" onsubmit="saveCustomer(event)">
+                <div class="form-group">
+                    <label class="form-label">Customer Name *</label>
+                    <input type="text" class="form-control" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Address *</label>
+                    <input type="text" class="form-control" name="address" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number *</label>
+                    <input type="tel" class="form-control" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" name="email">
+                </div>
+                
+                <h3 style="margin: 20px 0 12px; font-size: 16px; color: var(--color-primary);">🌱 Lawn Care Services</h3>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" name="lawn_mowing" value="Regular Mowing" id="lawn_mowing">
+                        <label for="lawn_mowing" style="flex: 1;">Regular Mowing</label>
+                        <input type="number" class="form-control" name="lawn_mowing_price" step="0.01" placeholder="$" style="width: 90px; font-size: 13px;">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" name="lawn_spring" value="Spring Cleanup" id="lawn_spring">
+                        <label for="lawn_spring" style="flex: 1;">Spring Cleanup</label>
+                        <input type="number" class="form-control" name="lawn_spring_price" step="0.01" placeholder="$" style="width: 90px; font-size: 13px;">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" name="lawn_fall" value="Fall Cleanup" id="lawn_fall">
+                        <label for="lawn_fall" style="flex: 1;">Fall Cleanup</label>
+                        <input type="number" class="form-control" name="lawn_fall_price" step="0.01" placeholder="$" style="width: 90px; font-size: 13px;">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" name="lawn_dethatching" value="Dethatching" id="lawn_dethatching">
+                        <label for="lawn_dethatching" style="flex: 1;">Dethatching</label>
+                        <input type="number" class="form-control" name="lawn_dethatching_price" step="0.01" placeholder="$" style="width: 90px; font-size: 13px;">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" name="lawn_aeration" value="Aeration" id="lawn_aeration">
+                        <label for="lawn_aeration" style="flex: 1;">Aeration</label>
+                        <input type="number" class="form-control" name="lawn_aeration_price" step="0.01" placeholder="$" style="width: 90px; font-size: 13px;">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" name="lawn_weed" value="Weed Spraying" id="lawn_weed">
+                        <label for="lawn_weed" style="flex: 1;">Weed Spraying</label>
+                        <input type="number" class="form-control" name="lawn_weed_price" step="0.01" placeholder="$" style="width: 90px; font-size: 13px;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Grass Cutting Height Preference (inches)</label>
+                    <input type="number" class="form-control" name="grass_height" step="0.5" placeholder="e.g., 3.0">
+                </div>
+
+                <h3 style="margin: 20px 0 12px; font-size: 16px; color: var(--color-winter);">❄️ Snow Removal Services</h3>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" name="snow_plowing" value="Plowing" id="snow_plowing">
+                        <label for="snow_plowing" style="flex: 1;">Plowing</label>
+                        <input type="number" class="form-control" name="snow_plowing_price" step="0.01" placeholder="$" style="width: 90px; font-size: 13px;">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" name="snow_shoveling" value="Sidewalk Shoveling" id="snow_shoveling">
+                        <label for="snow_shoveling" style="flex: 1;">Sidewalk Shoveling</label>
+                        <input type="number" class="form-control" name="snow_shoveling_price" step="0.01" placeholder="$" style="width: 90px; font-size: 13px;">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" name="snow_salt" value="Salt Application" id="snow_salt">
+                        <label for="snow_salt" style="flex: 1;">Salt Application</label>
+                        <input type="number" class="form-control" name="snow_salt_price" step="0.01" placeholder="$" style="width: 90px; font-size: 13px;">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" name="snow_hauling" value="Snow Hauling" id="snow_hauling">
+                        <label for="snow_hauling" style="flex: 1;">Snow Hauling</label>
+                        <input type="number" class="form-control" name="snow_hauling_price" step="0.01" placeholder="$" style="width: 90px; font-size: 13px;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Snow Depth Trigger (inches)</label>
+                    <input type="number" class="form-control" name="snow_trigger" step="0.5" placeholder="e.g., 2.0">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea class="form-control" name="notes" placeholder="Gate codes, special instructions, etc."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">Save Customer</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Customer Detail Modal -->
+    <div id="customerDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="detailCustomerName"></h2>
+                <button class="close-btn" onclick="closeModal('customerDetailModal')">&times;</button>
+            </div>
+            <div id="customerDetailContent"></div>
+            <div class="photo-grid" id="customerPhotos">
+                <div class="photo-item photo-upload" onclick="document.getElementById('photoInput').click()">
+                    <span>+</span>
+                </div>
+            </div>
+            <input type="file" id="photoInput" class="file-input" accept="image/*" multiple onchange="handlePhotoUpload(event)">
+        </div>
+    </div>
+
+    <!-- Route Modal -->
+    <div id="routeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Create Route</h2>
+                <button class="close-btn" onclick="closeModal('routeModal')">&times;</button>
+            </div>
+            <form id="routeForm" onsubmit="saveRoute(event)">
+                <div class="form-group">
+                    <label class="form-label">Route Name *</label>
+                    <input type="text" class="form-control" name="routeName" required placeholder="e.g., Monday Morning Route">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Select Customers</label>
+                    <div id="routeCustomerList" class="checkbox-group"></div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">Create Route</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <button class="nav-item active" data-tab="customers">
+            <span class="nav-icon">👥</span>
+            <span>Customers</span>
+        </button>
+        <button class="nav-item" data-tab="routes">
+            <span class="nav-icon">🗺️</span>
+            <span>Routes</span>
+        </button>
+        <button class="nav-item" data-tab="services">
+            <span class="nav-icon">💰</span>
+            <span>Services</span>
+        </button>
+    </div>
+
+    <script>
+        // Data storage
+        let customers = JSON.parse(localStorage.getItem('lawncare_customers') || '[]');
+        let routes = JSON.parse(localStorage.getItem('lawncare_routes') || '[]');
+        let currentCustomerId = null;
+
+        // Tab switching
+        document.querySelectorAll('.tab-btn, .nav-item').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tab = this.dataset.tab;
+                
+                // Update tab buttons
+                document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll(`[data-tab="${tab}"]`).forEach(t => t.classList.add('active'));
+                
+                // Update tab content
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.getElementById(tab).classList.add('active');
+
+                // Update FAB based on active tab
+                const fab = document.querySelector('.fab');
+                if (tab === 'routes') {
+                    fab.onclick = openRouteModal;
+                } else if (tab === 'customers') {
+                    fab.onclick = openCustomerModal;
+                } else {
+                    fab.style.display = 'none';
+                    return;
+                }
+                fab.style.display = 'block';
+            });
+        });
+
+        // Customer functions
+        function openCustomerModal() {
+            document.getElementById('customerModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function saveCustomer(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            const lawnServices = [];
+            if (formData.get('lawn_mowing')) lawnServices.push({name: 'Regular Mowing', price: formData.get('lawn_mowing_price') || ''});
+            if (formData.get('lawn_spring')) lawnServices.push({name: 'Spring Cleanup', price: formData.get('lawn_spring_price') || ''});
+            if (formData.get('lawn_fall')) lawnServices.push({name: 'Fall Cleanup', price: formData.get('lawn_fall_price') || ''});
+            if (formData.get('lawn_dethatching')) lawnServices.push({name: 'Dethatching', price: formData.get('lawn_dethatching_price') || ''});
+            if (formData.get('lawn_aeration')) lawnServices.push({name: 'Aeration', price: formData.get('lawn_aeration_price') || ''});
+            if (formData.get('lawn_weed')) lawnServices.push({name: 'Weed Spraying', price: formData.get('lawn_weed_price') || ''});
+
+            const snowServices = [];
+            if (formData.get('snow_plowing')) snowServices.push({name: 'Plowing', price: formData.get('snow_plowing_price') || ''});
+            if (formData.get('snow_shoveling')) snowServices.push({name: 'Sidewalk Shoveling', price: formData.get('snow_shoveling_price') || ''});
+            if (formData.get('snow_salt')) snowServices.push({name: 'Salt Application', price: formData.get('snow_salt_price') || ''});
+            if (formData.get('snow_hauling')) snowServices.push({name: 'Snow Hauling', price: formData.get('snow_hauling_price') || ''});
+
+            const customer = {
+                id: Date.now(),
+                name: formData.get('name'),
+                address: formData.get('address'),
+                phone: formData.get('phone'),
+                email: formData.get('email'),
+                lawnServices: lawnServices,
+                snowServices: snowServices,
+                grassHeight: formData.get('grass_height'),
+                snowTrigger: formData.get('snow_trigger'),
+                notes: formData.get('notes'),
+                photos: []
+            };
+
+            customers.push(customer);
+            localStorage.setItem('lawncare_customers', JSON.stringify(customers));
+            
+            e.target.reset();
+            closeModal('customerModal');
+            renderCustomers();
+        }
+
+        function renderCustomers() {
+            const list = document.getElementById('customerList');
+            
+            if (customers.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <p>No customers yet. Tap + to add your first customer.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = customers.map(customer => `
+                <div class="card" onclick="viewCustomer(${customer.id})">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">${customer.name}</div>
+                            <div class="card-subtitle">${customer.address}</div>
+                        </div>
+                        <span class="status-badge status-active">Active</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Phone:</span>
+                        <span class="info-value">${customer.phone}</span>
+                    </div>
+                    ${customer.price ? `
+                    <div class="info-row">
+                        <span class="info-label">Price:</span>
+                        <span class="info-value" style="color: var(--color-primary); font-weight: 600;">$${customer.price}</span>
+                    </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function viewCustomer(id) {
+            const customer = customers.find(c => c.id === id);
+            if (!customer) return;
+
+            currentCustomerId = id;
+            document.getElementById('detailCustomerName').textContent = customer.name;
+            
+            const lawnServicesHtml = customer.lawnServices.length > 0 
+                ? customer.lawnServices.map(s => `
+                    <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--color-border);">
+                        <span>${s.name}</span>
+                        ${s.price ? `<span style="color: var(--color-primary); font-weight: 600;">$${s.price}</span>` : ''}
+                    </div>
+                `).join('')
+                : '<span style="color: var(--color-text-secondary);">None selected</span>';
+
+            const snowServicesHtml = customer.snowServices.length > 0 
+                ? customer.snowServices.map(s => `
+                    <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--color-border);">
+                        <span>${s.name}</span>
+                        ${s.price ? `<span style="color: var(--color-winter); font-weight: 600;">$${s.price}</span>` : ''}
+                    </div>
+                `).join('')
+                : '<span style="color: var(--color-text-secondary);">None selected</span>';
+
+            document.getElementById('customerDetailContent').innerHTML = `
+                <div class="info-row">
+                    <span class="info-label">Address:</span>
+                    <span class="info-value">${customer.address}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Phone:</span>
+                    <span class="info-value">${customer.phone}</span>
+                </div>
+                ${customer.email ? `
+                <div class="info-row">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value">${customer.email}</span>
+                </div>
+                ` : ''}
+                
+                <h3 style="margin: 20px 0 12px; font-size: 16px; color: var(--color-primary);">🌱 Lawn Care Services</h3>
+                <div style="margin-bottom: 16px;">${lawnServicesHtml}</div>
+                ${customer.grassHeight ? `
+                <div class="info-row">
+                    <span class="info-label">Grass Height:</span>
+                    <span class="info-value">${customer.grassHeight}" preferred</span>
+                </div>
+                ` : ''}
+                
+                <h3 style="margin: 20px 0 12px; font-size: 16px; color: var(--color-winter);">❄️ Snow Removal Services</h3>
+                <div style="margin-bottom: 16px;">${snowServicesHtml}</div>
+                ${customer.snowTrigger ? `
+                <div class="info-row">
+                    <span class="info-label">Snow Trigger:</span>
+                    <span class="info-value">${customer.snowTrigger}" depth</span>
+                </div>
+                ` : ''}
+                
+                ${customer.notes ? `
+                <h3 style="margin: 20px 0 12px; font-size: 16px;">Notes</h3>
+                <p style="font-size: 14px; color: var(--color-text-secondary);">${customer.notes}</p>
+                ` : ''}
+
+                <h3 style="margin: 20px 0 12px; font-size: 16px;">Work Photos</h3>
+            `;
+
+            renderCustomerPhotos(customer);
+            document.getElementById('customerDetailModal').classList.add('active');
+        }
+
+        function handlePhotoUpload(event) {
+            const files = event.target.files;
+            if (!files.length || !currentCustomerId) return;
+
+            const customer = customers.find(c => c.id === currentCustomerId);
+            if (!customer) return;
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    customer.photos.push(e.target.result);
+                    localStorage.setItem('lawncare_customers', JSON.stringify(customers));
+                    renderCustomerPhotos(customer);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderCustomerPhotos(customer) {
+            const photosContainer = document.getElementById('customerPhotos');
+            
+            const existingPhotos = customer.photos.map((photo, index) => `
+                <div class="photo-item">
+                    <img src="${photo}" alt="Work photo ${index + 1}">
+                </div>
+            `).join('');
+
+            photosContainer.innerHTML = existingPhotos + `
+                <div class="photo-item photo-upload" onclick="document.getElementById('photoInput').click()">
+                    <span>+</span>
+                </div>
+            `;
+        }
+
+        // Route functions
+        function openRouteModal() {
+            const customerList = document.getElementById('routeCustomerList');
+            customerList.innerHTML = customers.map(customer => `
+                <label class="checkbox-label">
+                    <input type="checkbox" name="routeCustomer" value="${customer.id}">
+                    <span>${customer.name}</span>
+                </label>
+            `).join('');
+            
+            document.getElementById('routeModal').classList.add('active');
+        }
+
+        function saveRoute(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const selectedCustomers = Array.from(document.querySelectorAll('input[name="routeCustomer"]:checked'))
+                .map(input => parseInt(input.value));
+
+            const route = {
+                id: Date.now(),
+                name: formData.get('routeName'),
+                customers: selectedCustomers
+            };
+
+            routes.push(route);
+            localStorage.setItem('lawncare_routes', JSON.stringify(routes));
+            
+            e.target.reset();
+            closeModal('routeModal');
+            renderRoutes();
+        }
+
+        function renderRoutes() {
+            const list = document.getElementById('routeList');
+            
+            if (routes.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🗺️</div>
+                        <p>No routes yet. Tap + to create your first service route.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = routes.map(route => {
+                const routeCustomers = route.customers.map(custId => 
+                    customers.find(c => c.id === custId)
+                ).filter(c => c);
+
+                return `
+                    <div class="route-card">
+                        <div class="route-header">
+                            <div>
+                                <div class="card-title">${route.name}</div>
+                                <div class="card-subtitle">${routeCustomers.length} stops</div>
+                            </div>
+                        </div>
+                        <div class="route-stops">
+                            ${routeCustomers.map((customer, index) => `
+                                <div class="stop-item">
+                                    <div>
+                                        <span class="stop-number">${index + 1}</span>
+                                        <strong>${customer.name}</strong><br>
+                                        <small style="color: var(--color-text-secondary); margin-left: 32px;">${customer.address}</small>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Initialize
+        renderCustomers();
+        renderRoutes();
+
+        // No service worker needed - data stored in localStorage works offline
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed: ' + err));
+            });
+        }
+    </script>
+</body>
+</html>
